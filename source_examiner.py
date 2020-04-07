@@ -16,3 +16,6 @@ class SourceParser:
             relations_dict[key] = find_functions(source)
 
         return clean(relations_dict)
+
+    def diagram(self):
+        pass

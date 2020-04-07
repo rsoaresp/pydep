@@ -33,18 +33,36 @@ def move_to_set(functions: Dict[str, List[str]]) -> Dict[str, Set[str]]:
 
 
 def clean(relations: Dict[str, Dict[str, Set[str]]]) -> Dict[str, Dict[str, Set[str]]]:
-    list_know_functions = list()
-    for relations_dict in relations.values():
-        list_know_functions += list(relations_dict.keys())
+    """Remove tokens that are not function definitions."""
+
+    list_know_functions, function_def_origin = get_list_know_function(relations)
 
     cleaned_dict = dict()
     for file_name, relations_dict in relations.items():
         cleaned_dict[file_name] = dict()
 
-        for key, value in relations_dict.items():
-            cleaned_dict[file_name][key] = set()
+        for function, value in relations_dict.items():
+            cleaned_dict[file_name][function] = set()
             for i in value:
                 if i in list_know_functions:
-                    cleaned_dict[file_name][key].add(i)
+                    if function_def_origin[i] != file_name:
+                        cleaned_dict[file_name][function].add(f'{function_def_origin[i]}.{i}')
+                    else:
+                        cleaned_dict[file_name][function].add(f'{i}')
 
     return cleaned_dict
+
+
+def get_list_know_function(relations: Dict[str, Dict[str, Set[str]]]) -> Tuple[List[str], Dict[str, str]] :
+    """Returns a list with all the functions discovered on the source files."""
+
+    list_know_functions = list()
+    function_def_origin = dict()
+
+    for file_name, relations_dict in relations.items():
+        list_know_functions += list(relations_dict.keys())
+
+        for function in relations_dict.keys():
+            function_def_origin[function] = file_name
+
+    return list_know_functions, function_def_origin
