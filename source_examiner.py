@@ -1,6 +1,6 @@
 from typing import *
 
-from code_checker import find_functions, clean
+from code_checker import find_functions, find_imports, clean
 from load_files import get_source_code
 
 
@@ -12,8 +12,14 @@ class SourceParser:
     def scan(self) -> Dict[str, Dict[str, Set[str]]]:
 
         relations_dict = dict()
-        for key, source in self.source_code.items():
-            relations_dict[key] = find_functions(source)
+        for file_name, source in self.source_code.items():
+            imports = find_imports(source)
+
+            response = dict()
+            for key, value in find_functions(source).items():
+                response[key] = {i if (i in imports or i in find_functions(source).keys()) else None for i in value}
+
+            relations_dict[file_name] = response
 
         return clean(relations_dict)
 

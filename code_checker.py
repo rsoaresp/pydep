@@ -1,7 +1,23 @@
 import keyword
 from io import BytesIO
-from tokenize import tokenize, NAME
+from tokenize import tokenize, NAME, NEWLINE
 from typing import *
+
+
+def find_imports(source_code: str) -> List[str]:
+
+    functions_imports = list()
+    tokens_generator = tokenize(BytesIO(source_code).readline)
+
+    for token_type, token_string, _, _, _ in tokens_generator:
+        if token_string == 'import':
+            next_token_type, next_token_string, _, _, _ = next(tokens_generator)
+
+            while next_token_type != NEWLINE:
+                functions_imports.append(next_token_string)
+                next_token_type, next_token_string, _, _, _ = next(tokens_generator)
+
+    return functions_imports
 
 
 def find_functions(source_code: str) -> Dict[str, Set[str]]:

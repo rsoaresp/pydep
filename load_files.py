@@ -14,7 +14,7 @@ def get_source_code(path: str) -> Dict[str, str]:
     if os.path.isfile(path):
         if path.endswith('.py'):
             source.update(make_dict_entry(path))
-    elif os.path.isdir(path) and any([i.endswith('.py') for i in os.listdir(path)]):
+    elif os.path.isdir(path):
         for file_path in os.listdir(path):
             if file_path.endswith('.py'):
                 full_file_path = os.path.join(path, file_path)
@@ -24,7 +24,7 @@ def get_source_code(path: str) -> Dict[str, str]:
 
 
 def make_dict_entry(path: str) -> Dict[str, str]:
-    """Given a path to a file, read its content and returns a dictionary with file name and content (in utf-8)."""
+    """Given a dir to a file, read its content and returns a dictionary with file name and content (in utf-8)."""
 
     head, tail = os.path.split(path)
     with open(path, 'r') as file:
