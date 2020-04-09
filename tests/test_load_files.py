@@ -1,4 +1,5 @@
 import os
+import collections
 import unittest
 import tempfile
 
@@ -10,9 +11,9 @@ class LoaderTester(unittest.TestCase):
     def setUp(self) -> None:
 
         self.codes = {
-                        'code_a': b"def f(x)\nreturn x\ndef g(x)\nreturn x + f(x)",
-                        'code_b': b"def h(x)\nreturn x\ndef k(x)\nreturn x + h(x)"
-                     }
+            'code_a': b"def f(x)\nreturn x\ndef g(x)\nreturn x + f(x)",
+            'code_b': b"def h(x)\nreturn x\ndef k(x)\nreturn x + h(x)"
+        }
 
         self.files, self.paths = dict(), dict()
         for code_name, source_code in self.codes.items():
@@ -20,7 +21,7 @@ class LoaderTester(unittest.TestCase):
             self.files[code_name].write(source_code)
             self.files[code_name].seek(0)
 
-            self.paths[code_name] = self.files[code_name].name
+            self.paths[code_name] = self.path_spliter(self.files[code_name].name)
 
         return None
 
@@ -30,11 +31,15 @@ class LoaderTester(unittest.TestCase):
 
         return None
 
+    @staticmethod
+    def path_spliter(x):
+        return (x, *os.path.split(x))
+
     def test_load_files_with_single_source_code(self):
         """Check if the function get_source_code returns a dict with the right key and value."""
 
-        source_from_function = get_source_code(self.paths['code_a'])
-        expected_dict = {os.path.split(self.paths['code_a'])[1].replace('.py', ''): self.codes['code_a']}
+        source_from_function = get_source_code(self.paths['code_a'][0])
+        expected_dict = {self.paths['code_a'][2].replace('.py', ''): self.codes['code_a']}
 
         self.assertDictEqual(source_from_function, expected_dict)
         return None
@@ -44,8 +49,8 @@ class LoaderTester(unittest.TestCase):
 
         source_from_function = get_source_code(tempfile.gettempdir())
         expected_dict = {
-                         os.path.split(self.paths['code_a'])[1].replace('.py', ''): self.codes['code_a'],
-                         os.path.split(self.paths['code_b'])[1].replace('.py', ''): self.codes['code_b']
-                        }
+            self.paths['code_a'][2].replace('.py', ''): self.codes['code_a'],
+            self.paths['code_b'][2].replace('.py', ''): self.codes['code_b']
+        }
         self.assertDictEqual(source_from_function, expected_dict)
         return None

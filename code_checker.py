@@ -5,16 +5,20 @@ from typing import *
 
 
 def find_imports(source_code: str) -> List[str]:
+    """Returns a list of all imports from a given module."""
 
     functions_imports = list()
     tokens_generator = tokenize(BytesIO(source_code).readline)
 
     for token_type, token_string, _, _, _ in tokens_generator:
-        if token_string == 'import':
+        if token_string == 'from':
+            next_token_type, next_token_string, _, _, _ = next(tokens_generator)
+            next_token_type, next_token_string, _, _, _ = next(tokens_generator)
             next_token_type, next_token_string, _, _, _ = next(tokens_generator)
 
             while next_token_type != NEWLINE:
-                functions_imports.append(next_token_string)
+                if next_token_type == NAME:
+                    functions_imports.append(next_token_string)
                 next_token_type, next_token_string, _, _, _ = next(tokens_generator)
 
     return functions_imports
